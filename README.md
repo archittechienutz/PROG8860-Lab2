@@ -1,1 +1,1 @@
-# PROG8860-Lab2
+echo "# Flask CI/CD Example" > README.md
