@@ -1,0 +1,54 @@
+pipeline {
+    agent {
+        docker {
+            image 'python:3.11'
+        }
+    }
+
+    triggers {
+        githubPush()
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git credentialsId: 'github-creds', url: 'https://github.com/archittechienutz/PROG8860-Lab2.git', branch: 'main'
+            }
+        }
+        
+    stage('Verify Python & pip') {
+        steps {
+            bat 'python --version'
+            bat 'pip --version'
+        }
+    }
+
+
+        stage('Install Dependencies') {
+            steps {
+                sh 'pip install --upgrade pip'
+                sh 'pip install -r requirements.txt'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo 'Build stage - nothing to build for Flask'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'pytest test_app.py'
+            }
+        }
+
+        stage('Notification') {
+            steps {
+                mail to: 'yourcollegeemail@college.ca',
+                     subject: "Build Status: ${currentBuild.currentResult}",
+                     body: "Pipeline: ${env.JOB_NAME}\nBuild: ${env.BUILD_NUMBER}\nResult: ${currentBuild.currentResult}"
+            }
+        }
+    }
+}
